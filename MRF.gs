@@ -4,7 +4,7 @@ const CV_FOLDER_ID         = '15VBhbILGlA4v2Qrd_1wkuYhyQphaiHhe';
 
 function doGet(e) {
   return HtmlService
-    .createHtmlOutputFromFile('FormIndex')
+    .createHtmlOutputFromFile('mrf')
     .setTitle('MRF Form — Sphinx Worldbiz')
     .setXFrameOptionsMode(HtmlService.XFrameOptionsMode.ALLOWALL);
 }
