@@ -1,0 +1,744 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MRF Form — Sphinx Worldbiz</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:Arial,sans-serif;background:#f0f7ff;min-height:100vh;padding:30px 16px;}
+.card{background:#fff;border-radius:14px;border:1px solid #c9dff7;padding:1.5rem;max-width:720px;margin:0 auto;}
+.hdr{text-align:center;margin-bottom:1.2rem;}
+.logo-wrap{display:flex;justify-content:center;align-items:center;margin-bottom:10px;}
+.logo-wrap img{height:56px;width:auto;object-fit:contain;}
+.badge{display:inline-block;background:#dbeafe;color:#1e40af;font-size:11px;font-weight:700;padding:3px 14px;border-radius:20px;margin-bottom:8px;}
+.hdr h1{font-size:24px;font-weight:700;color:#1e3a5f;margin-bottom:3px;}
+.hdr p{font-size:12px;color:#6b90b8;}
+.divider{border:none;border-top:1px solid #dbeafe;margin:1rem 0;}
+.sec{font-size:11px;font-weight:700;color:#7b9fc0;text-transform:uppercase;letter-spacing:0.7px;margin:1rem 0 0.6rem;display:flex;align-items:center;gap:6px;}
+.sec::after{content:'';flex:1;height:1px;background:#dbeafe;}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
+.field{display:flex;flex-direction:column;gap:4px;}
+.field label{font-size:12.5px;font-weight:700;color:#4a6fa5;}
+.req{color:#e74c3c;}
+.fr{display:flex;gap:6px;align-items:flex-start;}
+.fr .cs-wrap{flex:1;min-width:0;}
+.ab{flex-shrink:0;width:34px;height:36px;border-radius:8px;border:1px solid #c9dff7;background:#e8f1fc;color:#4a6fa5;font-size:20px;cursor:pointer;display:flex;align-items:center;justify-content:center;margin-top:0;}
+.ab:hover{background:#dbeafe;border-color:#93c5fd;color:#1e40af;}
+
+/* Custom Searchable Select */
+.cs-wrap{position:relative;}
+.cs-box{display:flex;align-items:center;border:1px solid #c9dff7;border-radius:8px;background:#f8fbff;padding:0 10px;min-height:36px;cursor:pointer;user-select:none;gap:6px;}
+.cs-box:focus-within,.cs-box.open{border-color:#60a5fa;background:#fff;box-shadow:0 0 0 2px #bfdbfe44;}
+.cs-val{flex:1;font-size:13px;color:#1e3a5f;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.cs-val.placeholder{color:#9db8d8;}
+.cs-arrow{font-size:10px;color:#9db8d8;transition:transform .2s;}
+.cs-box.open .cs-arrow{transform:rotate(180deg);}
+.cs-dropdown{display:none;position:absolute;top:calc(100% + 3px);left:0;right:0;background:#fff;border:1px solid #c9dff7;border-radius:8px;box-shadow:0 4px 16px #1e3a5f18;z-index:200;overflow:hidden;}
+.cs-dropdown.show{display:block;}
+.cs-search{padding:7px 10px;border-bottom:1px solid #e8f1fc;}
+.cs-search input{width:100%;border:1px solid #c9dff7;border-radius:6px;padding:5px 8px;font-size:12px;outline:none;background:#f8fbff;}
+.cs-search input:focus{border-color:#60a5fa;background:#fff;}
+.cs-list{max-height:180px;overflow-y:auto;}
+.cs-opt{padding:8px 12px;font-size:13px;color:#1e3a5f;cursor:pointer;}
+.cs-opt:hover,.cs-opt.active{background:#dbeafe;color:#1e40af;}
+.cs-opt.empty{color:#9db8d8;font-style:italic;cursor:default;}
+.cs-opt.empty:hover{background:transparent;}
+
+input[type=text],input[type=number],input[type=date],textarea,
+select{width:100%;padding:9px 11px;border:1px solid #c9dff7;border-radius:8px;font-size:13px;color:#1e3a5f;background:#f8fbff;outline:none;}
+input:focus,textarea:focus,select:focus{border-color:#60a5fa;background:#fff;}
+textarea{resize:vertical;min-height:100px;font-family:Arial,sans-serif;}
+
+/* CV Upload */
+.cv-upload-area{border:2px dashed #c9dff7;border-radius:10px;padding:18px 14px;text-align:center;cursor:pointer;background:#f8fbff;transition:border-color .2s,background .2s;position:relative;}
+.cv-upload-area:hover,.cv-upload-area.drag-over{border-color:#60a5fa;background:#eff6ff;}
+.cv-upload-area input[type=file]{position:absolute;top:0;left:0;width:100%;height:100%;opacity:0;cursor:pointer;}
+.cv-upload-icon{font-size:28px;margin-bottom:6px;}
+.cv-upload-text{font-size:13px;color:#4a6fa5;font-weight:600;}
+.cv-upload-hint{font-size:11px;color:#9db8d8;margin-top:3px;}
+.cv-preview{display:none;margin-top:10px;background:#dbeafe;border:1px solid #93c5fd;border-radius:8px;padding:9px 12px;display:none;align-items:center;gap:10px;}
+.cv-preview.show{display:flex;}
+.cv-file-icon{font-size:22px;flex-shrink:0;}
+.cv-file-info{flex:1;min-width:0;}
+.cv-file-name{font-size:12px;font-weight:700;color:#1e3a5f;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.cv-file-size{font-size:11px;color:#6b90b8;}
+.cv-remove{width:24px;height:24px;border-radius:50%;border:1px solid #93c5fd;background:#fff;color:#3b82f6;cursor:pointer;font-size:14px;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+.cv-remove:hover{background:#fee2e2;border-color:#fca5a5;color:#dc2626;}
+.cv-uploading{display:none;align-items:center;gap:8px;margin-top:8px;font-size:12px;color:#1e40af;}
+.cv-uploading.show{display:flex;}
+.cv-done{display:none;align-items:center;gap:6px;margin-top:8px;font-size:12px;color:#065f46;background:#d1fae5;padding:6px 10px;border-radius:6px;border:1px solid #6ee7b7;}
+.cv-done.show{display:flex;}
+
+.sbar{display:flex;align-items:center;gap:6px;font-size:11px;color:#6b90b8;margin-bottom:14px;background:#f0f7ff;border:1px solid #dbeafe;border-radius:7px;padding:7px 12px;}
+.dot{width:7px;height:7px;border-radius:50%;background:#d1d5db;flex-shrink:0;}
+.dot.ok{background:#22c55e;}
+.dot.ld{background:#f59e0b;animation:pl 1s infinite;}
+@keyframes pl{0%,100%{opacity:1}50%{opacity:.4}}
+.deadline-hint{font-size:11px;color:#8ab0d4;margin-top:2px;}
+.submit-btn{width:100%;padding:13px;border-radius:9px;border:none;background:#2563eb;color:#fff;font-size:15px;font-weight:700;cursor:pointer;margin-top:1.2rem;}
+.submit-btn:hover{opacity:.88;}
+.submit-btn:disabled{opacity:.55;cursor:not-allowed;}
+.msg{text-align:center;margin-top:10px;font-size:13px;padding:10px 14px;border-radius:8px;display:none;}
+.msg.success{background:#d1fae5;color:#065f46;border:1px solid #6ee7b7;}
+.msg.error{background:#fee2e2;color:#991b1b;border:1px solid #fca5a5;}
+.msg.loading{background:#dbeafe;color:#1e40af;border:1px solid #93c5fd;}
+.sp{display:inline-block;width:13px;height:13px;border:2px solid #93c5fd;border-top-color:#1e40af;border-radius:50%;animation:spin .7s linear infinite;margin-right:6px;vertical-align:middle;}
+@keyframes spin{to{transform:rotate(360deg)}}
+.field-hidden{display:none !important;}
+
+/* Modal */
+.mbg{display:none;position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(30,58,95,.22);align-items:center;justify-content:center;z-index:999;}
+.mbg.on{display:flex;}
+.modal{background:#fff;border-radius:12px;border:1px solid #c9dff7;padding:1.4rem;width:300px;}
+.modal h3{font-size:14px;font-weight:700;color:#1e3a5f;margin-bottom:10px;}
+.modal input{width:100%;margin-bottom:8px;}
+.mhint{font-size:11px;color:#8ab0d4;margin-bottom:12px;}
+.mbtns{display:flex;gap:8px;justify-content:flex-end;}
+.bc{padding:7px 16px;border-radius:7px;font-size:12px;cursor:pointer;background:#f0f7ff;border:1px solid #c9dff7;color:#4a6fa5;}
+.ba{padding:7px 16px;border-radius:7px;font-size:12px;cursor:pointer;background:#2563eb;border:none;color:#fff;}
+.dup-warn{font-size:11px;color:#b45309;background:#fef3c7;border:1px solid #fcd34d;padding:5px 10px;border-radius:6px;margin-bottom:8px;display:none;}
+
+@media(max-width:520px){.grid2{grid-template-columns:1fr;}}
+</style>
+</head>
+<body>
+<div class="card">
+
+  <div class="sbar">
+    <span class="dot ld" id="sDot"></span>
+    <span id="sTxt">Loading data from sheet...</span>
+  </div>
+
+  <div class="logo-wrap">
+    <img id="logoImg" src="" alt="Sphinx Worldbiz Logo" style="display:none;">
+  </div>
+
+  <div class="hdr">
+    <div class="badge">Sphinx Worldbiz</div>
+    <h1>MRF Form</h1>
+    <p>Manpower Requisition Form</p>
+  </div>
+  <hr class="divider">
+
+  <!-- ── Account Info ───────────────────────────────── -->
+  <div class="sec">Account Info</div>
+  <div class="grid2" style="margin-bottom:12px;">
+
+    <div class="field">
+      <label>Business Unit <span class="req">*</span></label>
+      <select id="f_bu" onchange="onBUChange(this.value)">
+        <option value="">-- Select --</option>
+        <option value="OD">OD</option>
+        <option value="Internal">Internal</option>
+      </select>
+    </div>
+
+    <div class="field" id="field_client">
+      <label>Client Name <span class="req">*</span></label>
+      <div class="fr">
+        <div class="cs-wrap" id="cs_client"></div>
+        <button class="ab" onclick="openModal('cs_client','Client Name')" title="Add new">+</button>
+      </div>
+    </div>
+
+    <div class="field field-hidden" id="field_department">
+      <label>Department <span class="req">*</span></label>
+      <div class="fr">
+        <div class="cs-wrap" id="cs_department"></div>
+        <button class="ab" onclick="openModal('cs_department','Department')" title="Add new">+</button>
+      </div>
+    </div>
+
+    <div class="field">
+      <label>Account Manager Name <span class="req">*</span></label>
+      <div class="fr">
+        <div class="cs-wrap" id="cs_am"></div>
+        <button class="ab" onclick="openModal('cs_am','Account Manager Name')" title="Add new">+</button>
+      </div>
+    </div>
+
+    <div class="field">
+      <label>Account Type <span class="req">*</span></label>
+      <select id="f_atype">
+        <option value="">-- Select --</option>
+        <option>NBD</option>
+        <option>CRR</option>
+      </select>
+    </div>
+
+  </div>
+
+  <!-- ── Job Details ────────────────────────────────── -->
+  <div class="sec">Job Details</div>
+  <div class="grid2" style="margin-bottom:12px;">
+
+    <div class="field">
+      <label>Job Title <span class="req">*</span></label>
+      <div class="fr">
+        <div class="cs-wrap" id="cs_jobtitle"></div>
+        <button class="ab" onclick="openModal('cs_jobtitle','Job Title')" title="Add new">+</button>
+      </div>
+    </div>
+
+    <div class="field">
+      <label>Skills Required <span class="req">*</span></label>
+      <div class="fr">
+        <div class="cs-wrap" id="cs_skills"></div>
+        <button class="ab" onclick="openModal('cs_skills','Skills')" title="Add new">+</button>
+      </div>
+    </div>
+
+    <div class="field">
+      <label>Recruitment Type <span class="req">*</span></label>
+      <select id="f_rectype">
+        <option value="">-- Select --</option>
+        <option>New</option>
+        <option>Replacement</option>
+      </select>
+    </div>
+
+    <div class="field">
+      <label>Position Type <span class="req">*</span></label>
+      <select id="f_postype">
+        <option value="">-- Select --</option>
+        <option>Contract</option>
+        <option>Permanent</option>
+      </select>
+    </div>
+
+    <div class="field">
+      <label>Open Positions <span class="req">*</span></label>
+      <input type="number" id="f_openpos" placeholder="e.g. 3" min="1">
+    </div>
+
+    <div class="field">
+      <label>Location <span class="req">*</span></label>
+      <div class="fr">
+        <div class="cs-wrap" id="cs_loc"></div>
+        <button class="ab" onclick="openModal('cs_loc','Location')" title="Add new">+</button>
+      </div>
+    </div>
+
+    <div class="field">
+      <label>Job Opening Date <span class="req">*</span></label>
+      <input type="date" id="f_date">
+    </div>
+
+    <div class="field">
+      <label>Requirement Status <span class="req">*</span></label>
+      <select id="f_reqstatus">
+        <option value="In Progress" selected>In Progress</option>
+        <option value="OnHold">OnHold</option>
+        <option value="Close">Close</option>
+        <option value="Lost">Lost</option>
+      </select>
+    </div>
+
+  </div>
+
+  <!-- ── JD + CV Upload ────────────────────────────── -->
+  <div class="sec">Job Description (JD) &amp; CV</div>
+  <div style="margin-bottom:12px;display:flex;flex-direction:column;gap:12px;">
+
+    <div class="field">
+      <label>JD / Job Description</label>
+      <textarea id="f_jd" placeholder="Type the JD here (optional)..."></textarea>
+    </div>
+
+    <!-- CV Upload -->
+    <div class="field">
+      <label>Upload CV / JD File <span style="font-size:11px;color:#9db8d8;font-weight:400;">(Optional — PDF, DOC, DOCX)</span></label>
+
+      <div class="cv-upload-area" id="cvUploadArea">
+        <input type="file" id="cvFileInput" accept=".pdf,.doc,.docx,application/pdf,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document" onchange="onCVFileSelected(this)">
+        <div class="cv-upload-icon">📎</div>
+        <div class="cv-upload-text">Click or drag a file here</div>
+        <div class="cv-upload-hint">PDF, DOC, DOCX — Max 10MB</div>
+      </div>
+
+      <div class="cv-preview" id="cvPreview">
+        <span class="cv-file-icon" id="cvFileIcon">📄</span>
+        <div class="cv-file-info">
+          <div class="cv-file-name" id="cvFileName">file.pdf</div>
+          <div class="cv-file-size" id="cvFileSize">0 KB</div>
+        </div>
+        <button class="cv-remove" onclick="removeCVFile()" title="Remove file">✕</button>
+      </div>
+
+      <div class="cv-uploading" id="cvUploading">
+        <span class="sp"></span> Uploading CV to Drive...
+      </div>
+
+      <div class="cv-done" id="cvDone">
+        ✅ CV successfully uploaded to Drive!
+      </div>
+    </div>
+
+  </div>
+
+  <!-- ── Recruiter ──────────────────────────────────── -->
+  <div class="sec">Recruiter</div>
+  <div class="grid2" style="margin-bottom:12px;">
+
+    <div class="field">
+      <label>Recruiter Person Name <span class="req">*</span></label>
+      <div class="fr">
+        <div class="cs-wrap" id="cs_recruiter_person"></div>
+        <button class="ab" onclick="openModal('cs_recruiter_person','Recruiter Assign Person Name')" title="Add new">+</button>
+      </div>
+    </div>
+
+    <div class="field">
+      <label>TAT (Days) <span class="req">*</span></label>
+      <input type="number" id="f_deadline" placeholder="e.g. 15" min="1" value="15">
+      <span class="deadline-hint">Number of days to fill the position</span>
+    </div>
+
+    <div class="field">
+      <label>No Of CV Planned Submit <span class="req">*</span></label>
+      <input type="number" id="f_cvplanned" placeholder="e.g. 5" min="0">
+    </div>
+
+  </div>
+
+  <button class="submit-btn" id="submitBtn" onclick="submitForm()">Submit Request</button>
+  <div class="msg" id="formMsg"></div>
+</div>
+
+<!-- Modal -->
+<div class="mbg" id="modalBg">
+  <div class="modal">
+    <h3 id="mTitle">Add new option</h3>
+    <div class="dup-warn" id="dupWarn">⚠️ This value already exists!</div>
+    <input type="text" id="mInput" placeholder="Type a new value...">
+    <div class="mhint">This value will also be saved in Details.</div>
+    <div class="mbtns">
+      <button class="bc" onclick="closeModal()">Cancel</button>
+      <button class="ba" id="mAddBtn" onclick="confirmAdd()">Add &amp; Save</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// ═══════════════════════════════════════════════
+//  Custom Searchable Select
+// ═══════════════════════════════════════════════
+var csInstances = {};
+
+function createCS(wrapperId, placeholder) {
+  var wrap = document.getElementById(wrapperId);
+  if (!wrap) return;
+  wrap.innerHTML = [
+    '<div class="cs-box" id="csbox_'+wrapperId+'">',
+      '<span class="cs-val placeholder" id="csval_'+wrapperId+'">'+placeholder+'</span>',
+      '<span class="cs-arrow">▾</span>',
+    '</div>',
+    '<div class="cs-dropdown" id="csdd_'+wrapperId+'">',
+      '<div class="cs-search"><input type="text" placeholder="Search..." id="cssearch_'+wrapperId+'"></div>',
+      '<div class="cs-list" id="cslist_'+wrapperId+'"></div>',
+    '</div>'
+  ].join('');
+  csInstances[wrapperId] = { options: [], selected: '', placeholder: placeholder };
+  var box    = document.getElementById('csbox_'+wrapperId);
+  var dd     = document.getElementById('csdd_'+wrapperId);
+  var search = document.getElementById('cssearch_'+wrapperId);
+  box.addEventListener('click', function(e) {
+    e.stopPropagation();
+    var isOpen = dd.classList.contains('show');
+    closeAllCS();
+    if (!isOpen) {
+      dd.classList.add('show'); box.classList.add('open');
+      search.value = ''; renderCSList(wrapperId, ''); search.focus();
+    }
+  });
+  search.addEventListener('input',   function() { renderCSList(wrapperId, search.value); });
+  search.addEventListener('click',   function(e) { e.stopPropagation(); });
+  search.addEventListener('keydown', function(e) { if (e.key==='Escape') closeAllCS(); });
+}
+
+function closeAllCS() {
+  document.querySelectorAll('.cs-dropdown.show').forEach(function(d){ d.classList.remove('show'); });
+  document.querySelectorAll('.cs-box.open').forEach(function(b){ b.classList.remove('open'); });
+}
+document.addEventListener('click', function(){ closeAllCS(); });
+
+function renderCSList(wrapperId, query) {
+  var inst = csInstances[wrapperId]; if (!inst) return;
+  var list = document.getElementById('cslist_'+wrapperId);
+  var q    = (query||'').toLowerCase().trim();
+  var filtered = inst.options.filter(function(o){ return o.toLowerCase().indexOf(q) !== -1; });
+  if (!filtered.length) { list.innerHTML = '<div class="cs-opt empty">No results found</div>'; return; }
+  list.innerHTML = filtered.map(function(o){
+    return '<div class="cs-opt'+(o===inst.selected?' active':'')+'" data-val="'+escHtml(o)+'">'+escHtml(o)+'</div>';
+  }).join('');
+  list.querySelectorAll('.cs-opt:not(.empty)').forEach(function(el){
+    el.addEventListener('click', function(e){
+      e.stopPropagation(); selectCS(wrapperId, this.getAttribute('data-val')); closeAllCS();
+    });
+  });
+}
+
+function selectCS(wrapperId, val) {
+  var inst = csInstances[wrapperId]; if (!inst) return;
+  inst.selected = val;
+  var valEl = document.getElementById('csval_'+wrapperId);
+  if (val) { valEl.textContent = val; valEl.classList.remove('placeholder'); }
+  else     { valEl.textContent = inst.placeholder; valEl.classList.add('placeholder'); }
+}
+
+function getCSValue(wrapperId) {
+  return csInstances[wrapperId] ? csInstances[wrapperId].selected : '';
+}
+
+function setCSOptions(wrapperId, vals) {
+  var inst = csInstances[wrapperId]; if (!inst) return;
+  var seen = {}, unique = [];
+  (vals||[]).forEach(function(v){
+    var k = (v+'').trim().toLowerCase();
+    if (v && k && !seen[k]) { seen[k]=1; unique.push((v+'').trim()); }
+  });
+  inst.options = unique;
+}
+
+function addCSOption(wrapperId, val) {
+  var inst = csInstances[wrapperId]; if (!inst) return false;
+  var trimmed = (val||'').trim(); if (!trimmed) return false;
+  var exists = inst.options.some(function(o){ return o.trim().toLowerCase()===trimmed.toLowerCase(); });
+  if (exists) return false;
+  inst.options.push(trimmed); return true;
+}
+
+function escHtml(s) {
+  return (s+'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+// ═══════════════════════════════════════════════
+//  Init all CS instances
+// ═══════════════════════════════════════════════
+createCS('cs_client',          '-- Select Client --');
+createCS('cs_department',      '-- Select Department --');
+createCS('cs_am',              '-- Select Manager --');
+createCS('cs_jobtitle',        '-- Select Job Title --');
+createCS('cs_skills',          '-- Select Skills --');
+createCS('cs_loc',             '-- Select Location --');
+createCS('cs_recruiter_person','-- Select Person --');
+
+// ═══════════════════════════════════════════════
+//  Business Unit toggle
+// ═══════════════════════════════════════════════
+function onBUChange(val) {
+  var fc = document.getElementById('field_client');
+  var fd = document.getElementById('field_department');
+  if (val === 'OD') {
+    fc.classList.remove('field-hidden');
+    fd.classList.add('field-hidden');
+    selectCS('cs_department', '');
+  } else if (val === 'Internal') {
+    fc.classList.add('field-hidden');
+    fd.classList.remove('field-hidden');
+    selectCS('cs_client', '');
+  } else {
+    fc.classList.remove('field-hidden');
+    fd.classList.add('field-hidden');
+    selectCS('cs_client', ''); selectCS('cs_department', '');
+  }
+}
+
+// ═══════════════════════════════════════════════
+//  Status bar
+// ═══════════════════════════════════════════════
+function setStatus(msg, state) {
+  document.getElementById('sTxt').textContent = msg;
+  var d = document.getElementById('sDot');
+  d.className = 'dot'+(state==='ok'?' ok':state==='ld'?' ld':'');
+}
+
+// ═══════════════════════════════════════════════
+//  Load dropdowns from Details
+// ═══════════════════════════════════════════════
+function loadDropdowns() {
+  setStatus('Loading data from sheet...', 'ld');
+  google.script.run
+    .withSuccessHandler(function(data) {
+      if (data['Client Name'])                  setCSOptions('cs_client',           data['Client Name']);
+      if (data['Account Manager Name'])         setCSOptions('cs_am',               data['Account Manager Name']);
+      if (data['Job Title'])                    setCSOptions('cs_jobtitle',         data['Job Title']);
+      if (data['Location'])                     setCSOptions('cs_loc',              data['Location']);
+      if (data['Recruiter Assign Person Name']) setCSOptions('cs_recruiter_person', data['Recruiter Assign Person Name']);
+      if (data['Skills'])                       setCSOptions('cs_skills',           data['Skills']);
+      if (data['Department'])                   setCSOptions('cs_department',       data['Department']);
+      setStatus('Sheet connected — data loaded ✓', 'ok');
+    })
+    .withFailureHandler(function(err) {
+      setStatus('Load failed: '+(err.message||err), '');
+    })
+    .getSheetDropdowns();
+}
+loadDropdowns();
+
+function loadLogo() {
+  google.script.run
+    .withSuccessHandler(function(res) {
+      if (res && res.success && res.dataUrl) {
+        var img = document.getElementById('logoImg');
+        img.src = res.dataUrl;
+        img.style.display = 'block';
+      }
+    })
+    .withFailureHandler(function() {})
+    .getLogoBase64();
+}
+loadLogo();
+
+// ═══════════════════════════════════════════════
+//  CV File Upload Logic
+// ═══════════════════════════════════════════════
+var cvFile         = null;
+var cvUploadedLink = '';
+
+function onCVFileSelected(input) {
+  var file = input.files[0];
+  if (!file) return;
+
+  // Validate size (10MB)
+  if (file.size > 10 * 1024 * 1024) {
+    showMsg('CV file size must not exceed 10MB.', 'error');
+    input.value = '';
+    return;
+  }
+
+  cvFile = file;
+  cvUploadedLink = '';
+
+  // Show preview
+  var ext = file.name.split('.').pop().toLowerCase();
+  var icon = ext === 'pdf' ? '📕' : '📝';
+  document.getElementById('cvFileIcon').textContent  = icon;
+  document.getElementById('cvFileName').textContent  = file.name;
+  document.getElementById('cvFileSize').textContent  = formatFileSize(file.size);
+  document.getElementById('cvPreview').classList.add('show');
+  document.getElementById('cvUploadArea').style.display = 'none';
+  document.getElementById('cvDone').classList.remove('show');
+  document.getElementById('cvUploading').classList.remove('show');
+}
+
+function removeCVFile() {
+  cvFile = null;
+  cvUploadedLink = '';
+  document.getElementById('cvFileInput').value = '';
+  document.getElementById('cvPreview').classList.remove('show');
+  document.getElementById('cvUploadArea').style.display = '';
+  document.getElementById('cvDone').classList.remove('show');
+  document.getElementById('cvUploading').classList.remove('show');
+}
+
+function formatFileSize(bytes) {
+  if (bytes < 1024)       return bytes + ' B';
+  if (bytes < 1024*1024)  return (bytes/1024).toFixed(1) + ' KB';
+  return (bytes/(1024*1024)).toFixed(1) + ' MB';
+}
+
+// Drag-and-drop support
+var uploadArea = document.getElementById('cvUploadArea');
+uploadArea.addEventListener('dragover',  function(e){ e.preventDefault(); uploadArea.classList.add('drag-over'); });
+uploadArea.addEventListener('dragleave', function(){ uploadArea.classList.remove('drag-over'); });
+uploadArea.addEventListener('drop', function(e){
+  e.preventDefault(); uploadArea.classList.remove('drag-over');
+  var files = e.dataTransfer.files;
+  if (files.length > 0) {
+    document.getElementById('cvFileInput').files = files;
+    onCVFileSelected(document.getElementById('cvFileInput'));
+  }
+});
+
+// Upload CV to Drive — returns Promise resolving to link string or ''
+function uploadCVToDrive() {
+  return new Promise(function(resolve) {
+    if (!cvFile) { resolve(''); return; }
+    if (cvUploadedLink) { resolve(cvUploadedLink); return; }
+
+    document.getElementById('cvUploading').classList.add('show');
+
+    var reader = new FileReader();
+    reader.onload = function(e) {
+      var base64 = e.target.result.split(',')[1];
+      google.script.run
+        .withSuccessHandler(function(res) {
+          document.getElementById('cvUploading').classList.remove('show');
+          if (res && res.success) {
+            cvUploadedLink = res.fileUrl;
+            document.getElementById('cvDone').classList.add('show');
+            resolve(cvUploadedLink);
+          } else {
+            showMsg('CV upload failed: ' + (res.message || 'Unknown error'), 'error');
+            resolve('');
+          }
+        })
+        .withFailureHandler(function(err) {
+          document.getElementById('cvUploading').classList.remove('show');
+          showMsg('CV upload error: ' + (err.message || err), 'error');
+          resolve('');
+        })
+        .uploadCVToDrive(cvFile.name, base64, cvFile.type || 'application/octet-stream');
+    };
+    reader.onerror = function() {
+      showMsg('File read error. Please try again.', 'error');
+      resolve('');
+    };
+    reader.readAsDataURL(cvFile);
+  });
+}
+
+// ═══════════════════════════════════════════════
+//  Modal
+// ═══════════════════════════════════════════════
+var curField = null, curHeader = null, saving = false;
+
+function openModal(wrapperId, header) {
+  curField = wrapperId; curHeader = header;
+  document.getElementById('mTitle').textContent    = 'Add — '+header;
+  document.getElementById('mInput').value          = '';
+  document.getElementById('dupWarn').style.display = 'none';
+  document.getElementById('mAddBtn').textContent   = 'Add & Save';
+  document.getElementById('mAddBtn').disabled      = false;
+  document.getElementById('modalBg').classList.add('on');
+  setTimeout(function(){ document.getElementById('mInput').focus(); }, 80);
+}
+
+function closeModal() {
+  document.getElementById('modalBg').classList.remove('on');
+  curField = null; curHeader = null; saving = false;
+}
+
+function confirmAdd() {
+  var val = document.getElementById('mInput').value.trim();
+  if (!val || saving) return;
+  var added = addCSOption(curField, val);
+  if (!added) { document.getElementById('dupWarn').style.display = 'block'; return; }
+  document.getElementById('dupWarn').style.display = 'none';
+  saving = true;
+  var btn = document.getElementById('mAddBtn');
+  btn.textContent = 'Saving...'; btn.disabled = true;
+  selectCS(curField, val);
+  google.script.run
+    .withSuccessHandler(function(){ btn.textContent = 'Saved ✓'; saving = false; setTimeout(closeModal,600); })
+    .withFailureHandler(function(){ btn.textContent = 'Added (offline)'; saving = false; setTimeout(closeModal,600); })
+    .addOptionToSheet(curHeader, val);
+}
+
+document.getElementById('mInput').addEventListener('keydown', function(e){
+  if (e.key==='Enter') confirmAdd();
+  if (e.key==='Escape') closeModal();
+});
+document.getElementById('mInput').addEventListener('input', function(){
+  document.getElementById('dupWarn').style.display = 'none';
+});
+document.getElementById('modalBg').addEventListener('click', function(e){
+  if (e.target===this) closeModal();
+});
+
+// ═══════════════════════════════════════════════
+//  Message helper
+// ═══════════════════════════════════════════════
+function showMsg(html, type) {
+  var m = document.getElementById('formMsg');
+  m.innerHTML = html; m.className = 'msg '+type; m.style.display = 'block';
+  if (type==='success') setTimeout(function(){ m.style.display='none'; }, 5000);
+}
+
+// ═══════════════════════════════════════════════
+//  Submit
+// ═══════════════════════════════════════════════
+function submitForm() {
+  var bu = document.getElementById('f_bu').value;
+  if (!bu) { showMsg('Please fill in: <b>Business Unit</b>', 'error'); return; }
+
+  var clientOrDept      = bu === 'OD' ? getCSValue('cs_client') : getCSValue('cs_department');
+  var clientOrDeptLabel = bu === 'OD' ? 'Client Name' : 'Department';
+  if (!clientOrDept) { showMsg('Please fill in: <b>'+clientOrDeptLabel+'</b>', 'error'); return; }
+
+  var csFields = [
+    {id:'cs_am',               label:'Account Manager Name'},
+    {id:'cs_jobtitle',         label:'Job Title'},
+    {id:'cs_skills',           label:'Skills Required'},
+    {id:'cs_loc',              label:'Location'},
+    {id:'cs_recruiter_person', label:'Recruiter Person Name'}
+  ];
+  for (var i=0; i<csFields.length; i++) {
+    if (!getCSValue(csFields[i].id)) {
+      showMsg('Please fill in: <b>'+csFields[i].label+'</b>', 'error'); return;
+    }
+  }
+
+  var plainFields = [
+    {id:'f_atype',     label:'Account Type'},
+    {id:'f_rectype',   label:'Recruitment Type'},
+    {id:'f_postype',   label:'Position Type'},
+    {id:'f_openpos',   label:'Open Positions'},
+    {id:'f_date',      label:'Job Opening Date'},
+    {id:'f_reqstatus', label:'Requirement Status'},
+    {id:'f_deadline',  label:'TAT (Days)'},
+    {id:'f_cvplanned', label:'No Of CV Planned Submit'}
+  ];
+  for (var j=0; j<plainFields.length; j++) {
+    var el = document.getElementById(plainFields[j].id);
+    if (!el.value || !el.value.trim()) {
+      showMsg('Please fill in: <b>'+plainFields[j].label+'</b>', 'error');
+      el.focus(); return;
+    }
+  }
+
+  var btn = document.getElementById('submitBtn');
+  btn.disabled = true;
+  btn.innerHTML = '<span class="sp"></span>Submitting...';
+  showMsg('<span class="sp"></span>Submitting...', 'loading');
+
+  // Upload CV first (if any), then save form
+  uploadCVToDrive().then(function(cvLink) {
+    var payload = {
+      action:              'submitForm',
+      businessUnit:        bu,
+      clientOrDept:        clientOrDept,
+      accountManager:      getCSValue('cs_am'),
+      accountType:         document.getElementById('f_atype').value,
+      jobTitle:            getCSValue('cs_jobtitle'),
+      skills:              getCSValue('cs_skills'),
+      recruitmentType:     document.getElementById('f_rectype').value,
+      positionType:        document.getElementById('f_postype').value,
+      openPositions:       document.getElementById('f_openpos').value,
+      location:            getCSValue('cs_loc'),
+      jobOpeningDate:      document.getElementById('f_date').value,
+      jd:                  document.getElementById('f_jd').value,
+      cvLink:              cvLink,
+      recruiterPersonName: getCSValue('cs_recruiter_person'),
+      deadlineDays:        document.getElementById('f_deadline').value,
+      requirementStatus:   document.getElementById('f_reqstatus').value,
+      cvPlanned:           document.getElementById('f_cvplanned').value
+    };
+
+    google.script.run
+      .withSuccessHandler(function() {
+        btn.disabled = false; btn.textContent = 'Submit Request';
+        showMsg('Form successfully submitted! ✓', 'success');
+        // Reset form
+        ['f_bu','f_atype','f_rectype','f_postype','f_openpos','f_date','f_jd','f_cvplanned']
+          .forEach(function(id){ document.getElementById(id).value = ''; });
+        document.getElementById('f_deadline').value = '15';
+        document.getElementById('f_reqstatus').value = 'In Progress';
+        ['cs_client','cs_department','cs_am','cs_jobtitle','cs_skills',
+         'cs_loc','cs_recruiter_person']
+          .forEach(function(id){ selectCS(id,''); });
+        onBUChange('');
+        removeCVFile();
+      })
+      .withFailureHandler(function(err) {
+        btn.disabled = false; btn.textContent = 'Submit Request';
+        showMsg('Error: '+(err.message||err), 'error');
+      })
+      .saveFormResponse(payload);
+  });
+}
+</script>
+</body>
+</html>
